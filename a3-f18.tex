@@ -64,7 +64,7 @@ Suppose that the SCC(), DFS() and TopologicalSort() are correct. In order to det
 
 \color{black}
 \textbf{Solution}\\
-Let's assume for a contradiction that the graph $G$ has a unique minimum spanning trees $T$. Let $(u,v)$ be an edge in $T$. Removing edge $(u,v)$ cuts the tree $T$ into two components. Consider the cut $(u, v)$ and let $(x,y)$ be the unique minimum edge crossing the cut. If $(x,y) \neq (u,v)$ then $w(x,y) < w(u,v)$ and the spanning tree $T - \{(u,v)\} \bigcup \{(x,y)\}$ has a better cost than $T$ which leads to a contradiction because if $T$ was originally an MST, then by definition the edge $(u,v)$ should be the minimum edge that is part of $T$.  \\
+We will prove by contradiction. Let's suppose graph $G$ has a unique minimum spanning trees $T$. Let $(u,v)$ be an edge in $T$. Removing edge $(u,v)$ cuts the tree $T$ into two components. Consider the cut $(u, v)$ and let $(x,y)$ be the unique minimum edge crossing the cut. If $(x,y) \neq (u,v)$ then $w(x,y) < w(u,v)$ and the spanning tree $T - \{(u,v)\} \bigcup \{(x,y)\}$ has a smaller sum of edge weights than $T$ which leads to a contradiction because if $T$ was originally an MST, then by definition the edge $(u,v)$ should be the minimum edge that is part of $T$.  \\
 \includegraphics[scale=0.5]{q3}\\
 Conversely, if we consider the graph above, there is a unique MST that contains edges $(a,b)$ and $(a,c)$, however the cut $(\{a\}, \{b,c\})$ doesn't have a unique minimum edge crossing the cut.
 %Question 4
