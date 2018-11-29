@@ -1,0 +1,294 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage[noend]{algpseudocode}
+\usepackage{xcolor}
+\title{Assignment 4}
+\author{COMP 3804, Fall 2018}
+\date{Upload in cuLearn by 1PM on December 5, 2018}
+\begin{document}
+\maketitle
+
+\section{Guidelines}
+General guidelines are as follows:
+ 
+\begin{enumerate}
+\item Since we are only accepting assignments via CU-Learn, no late submissions will be entertained after the cut-off time \& date. 
+
+\item Please write clearly and answer questions precisely.  It is your responsibility to ensure that what is uploaded is clearly readable. If we can't read, we can't mark!
+
+
+\item Please cite all the references (including web-sites, names of friends,
+etc.) which you used/consulted as the source of information for each of
+the questions. 
+
+
+\item All questions/problems carry equal marks. 
+
+\item When a question asks you to design an algorithm - it {\bf requires} you to 
+\begin{enumerate}
+\item Clearly spell out the {\bf steps}  of your algorithm in pseudo code.
+\item {\bf Prove} that your algorithm is correct 
+\item {\bf Analyze} the running time. 
+\end{enumerate}
+
+\item You can assume that a graph  $G=(V,E)$ uses adjacency list representation. 
+
+\end{enumerate}
+
+
+
+\section{Problems}
+
+\begin{enumerate}
+
+\item The dynamic programming method for the matrix chain multiplication, which we did in the class, outputs the minimum number of operations (multiplications), but actually doesn't tell us  in which order one needs to multiply the matrices. What modifications will you make in the pseudo-code, so that we can also determine in which order one needs to multiply them? Apply your pseudo-code to multiply the following chain of matrices in an optimal way: 
+$A_1A_2A_3A_4A_5A_6$, where
+the sequence of dimensions of these matrices are $3,5,3, 7, 2, 6, 4$ (i.e., the dimension of $A_1$ is $3\times 5$, $A_2$ is $5 \times 3$, 
+$A_3$ is $3\times 7$, $A_4$ is $7\times 2$, $A_5$ is $2\times 6$, and $A_6$ is $6 \times 4$). 
+Please show your work.
+%Question 1 Answers
+
+\textbf{Solution}
+
+\begin{algorithm}
+\caption{Multiplying Matricies}
+\begin{algorithmic}[1]
+\Procedure{MATRIX-CHAIN-MULTIPLICATION}{$A, P$} \Comment{A is the list of matricies, P is the sequence of dimensions of A}
+	\State $m[i,j] \gets $ Minimum cost to compute $A_iA_{i+1} ... A_j$ where $1 \leq i\leq j \leq n$
+	\For{i = 1 to n}
+		\State $m[i,i] = 0$
+	\EndFor
+	
+	\For{$l = 2$ to $n$}
+		
+		\For{$i = 1$ to $n-l+1$}
+			\State $j = i + l -1$
+			\State $m[i,j] = \infty$
+			
+			\For{$k = i$ to $j-1$}
+				\State $q = m[i,k] + m[k+1, j] + P_{i-1}P_kP_j$
+				\If{$q < m[i,j]$}
+					\State $m[i,j] = q$
+					\State $x[i,j] = k$ \Comment{Store the index for where we multiply the two matricies at}
+				
+				\EndIf
+			
+			\EndFor
+		
+		\EndFor
+		
+	\EndFor
+	
+	\State Return $m[1,n]$ and $x[1,n]$
+\EndProcedure
+\Procedure{ORDER}{$A, X, i, j$} \Comment{A is the list of matricies, P is the sequence of dimensions of A}
+	\If{$j > i$}
+		\State $A \gets ORDER(A, X, i, X[i, j])$
+		\State $B \gets ORDER(A, X, X[i,j]+1, j)$
+		\State $print (A, B)$
+	\Else
+		\State $print (A_i)$
+	\EndIf
+	
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Calculations for $A_1A_2A_3A_4A_5A_6$ using the Algorithm}\\
+$m[i,i] = 0$ for $1\leq i \leq 6$ \\
+$P = <3,5,3,7,2,6,4>$ from index 0 to 6\\
+$m[1,2]=m[1,1] + m[2,2] + P_0P_1P_2 = 0 + 0 + 3 * 5 * 3 = 45$; $x[1,2] = 1$ \\
+$m[2,3]=m[2,2] + m[3,3] + P_1P_2P_3 = 0 + 0 + 5* 3 * 7 = 105$; $x[2,3] = 2$\\
+$m[3,4]=m[3,4] + m[4,4] + P_2P_3P_4 = 0 + 0 + 3* 7 * 2 = 42$; $x[3,4] = 3$\\
+$m[4,5]=m[4,4] + m[5,5] + P_3P_4P_5 = 0 + 0 + 7* 2 * 6 = 84$; $x[4,5] = 4$ \\
+$m[5,6]=m[5,5] + m[6,6] + P_4P_5P_6 = 0 + 0 + 2* 6 * 4 = 48$; $x[5,6] = 5$ \\
+
+$m[1, 3]= MIN(m[1,1] + m[2,3] + P_0P_1P_3 = 0 + 10 5+ 3* 5 * 7 = 210 , \\ 
+			{\qquad} m[1,2] + m[3,3] + P_0P_2P_3 = 45 + 0 + 3* 3 * 7 = 108) = 108$ ; $x[1,3] = 2$\\
+ 
+$m[2, 4]= MIN(m[2,2] + m[3,4] + P_1P_2P_4 = 0 + 42 + 5* 3 * 2 = 72 , \\ 
+			{\qquad} m[2,3] + m[4,4] + P_1P_3P_4 = 105 + 0 + 5* 7 * 2 = 175) = 72$  ; $x[2,4] = 2$ \\
+ 
+$m[3, 5]= MIN(m[3,3] + m[4,5] + P_2P_3P_5 = 0 + 84 + 3* 7 * 6 = 210 , \\ 
+			{\qquad} m[3,4] + m[5,5] + P_2P_4P_5 = 42 + 0 + 3* 2 * 6 = 84) = 84$  ; $x[3,5] = 4$ \\
+			
+$m[4, 6]= MIN(m[4,4] + m[5,6] + P_3P_4P_6 = 0 + 48 + 7* 2 * 4 = 104 , \\ 
+			{\qquad} m[4,5] + m[6,6] + P_2P_4P_5 = 84 + 0 + 7* 6 * 4 = 252) = 104$   ; $x[4,6] = 4$\\
+
+$m[1, 4]= MIN(m[1,1] + m[2,4] + P_0P_1P_4 = 0 + 72 + 3* 5 * 2 = 102 , \\ 
+			{\qquad} m[1,2] + m[3,4] + P_0P_2P_4 = 45 + 42 + 3* 3 * 2 = 105,  \\
+			{\qquad} m[1,3] + m[4,4] + P_0P_3P_4 = 210 + 0 + 3*7*2 = 252) = 102$  ; $x[1,4] = 1$ \\
+			
+$m[2, 5]= MIN(m[2,2] + m[3,5] + P_1P_2P_5 = 0 + 84 + 5* 3 * 6 = 174 , \\ 
+			{\qquad} m[2,3] + m[4,5] + P_1P_3P_5 = 105 + 84 + 5* 7 * 6 = 399,  \\
+			{\qquad} m[2,4] + m[5,5] + P_1P_4P_5 = 72 + 0 + 5*2*6 = 132) = 132$  ; $x[2,5] = 4$\\
+			
+$m[3, 6]= MIN(m[3,3] + m[4,6] + P_2P_3P_6 = 0 + 104 + 3* 7 * 4 = 188 , \\ 
+			{\qquad} m[3,4] + m[5,6] + P_2P_4P_6 = 42 + 48 + 3* 2 * 4 = 114,  \\
+			{\qquad} m[3,5] + m[6,6] + P_2P_5P_6 = 84 + 0 + 3*6*4 = 156) = 114$  ; $x[3,6] = 4$\\
+			
+$m[1, 5]= MIN(m[1,1] + m[2,5] + P_0P_1P_5 = 0 + 104 + 3* 5 * 6 = 194 , \\ 
+			{\qquad} m[1,2] + m[3,5] + P_0P_2P_5 = 45 + 84 + 3* 3 * 6 = 183,  \\
+			{\qquad} m[1,3] + m[4,5] + P_0P_3P_5 = 108 + 84 + 3* 7 * 6 = 318,  \\
+			{\qquad} m[1,4] + m[5,5] + P_0P_4P_5 = 102 + 0 + 3*2*6 = 138) = 138$; $x[1,5] = 4$\\	
+			
+$m[2, 6]= MIN(m[2,2] + m[3,6] + P_1P_2P6 = 0 + 112 + 5* 3 * 4 = 174 , \\ 
+			{\qquad} m[2,3] + m[4,6] + P_1P_3P_6 = 105 + 104 + 5* 7* 4 = 349,  \\
+			{\qquad} m[2,4] + m[5,6] + P_1P_4P_6 = 72 + 48 + 5* 2* 4 = 160,  \\
+			{\qquad} m[2,5] + m[6,6] + P_1P_5P_6 = 132 + 0 + 5*6*4 = 252) = 160$ ; $x[2,6] = 2$\\
+			
+$m[1, 6]= MIN(m[1,1] + m[2,6] + P_0P_1P6 = 0 + 160 + 3* 5 * 4 = 220 , \\ 
+			{\qquad} m[1,2] + m[3,6] + P_0P_2P_6 = 45 + 114 + 3* 3* 4 = 195,  \\
+			{\qquad} m[1,3] + m[4,6] + P_0P_3P_6 = 108 + 104 + 3* 7* 4 = 296,  \\
+			{\qquad} m[1,4] + m[5,6] + P_0P_4P_6 = 102 + 48 + 3* 2* 4 = 174,  \\
+			{\qquad} m[1,5] + m[6,6] + P_0P_5P_6 = 138 + 0 + 3*6*4 = 210) = 174$ ; $x[1,6] = 4$\\
+			
+			
+\item  Given an unlimited supply of coins of denominations $x_1, \cdots,  x_n$, we wish to make change for a certain value $X$. 
+(We are not worried about finding the minimum set of coins that adds to  $X$; we just want to make change; and also note that sometimes we may not be able to make an exact change). Design a dynamic programming  algorithm running in $O(nX)$ time, that can decide whether the change for the amount $X$ can be made or not? (Note that all the quantities ($X, x_1, \cdots,  x_n$) are integers.)
+
+%Question 2 Answers
+
+\textbf{Solution}
+
+\textbf{Structure of an Optimal Solution}
+
+Let us define the quantity $k[x] =$ 1 if we can make change for the value $x$ and 0 otherwise. Then the structure of an optimal solution can be given as $k[m] = MAX(k[m-x_i])$ where $1 \leq i \leq n$ and $x_i \leq m $. We will initially set $k[0] = 1$ because we can always make change for a value of 0 as no coins are needed. 
+
+\textbf{Recursive Definition}\\
+%NEED TO DO%
+If $ X == 0$ return True
+
+Else
+$ X = X - x_i$
+ 
+
+\begin{algorithm}
+\caption{Can we make change}
+\begin{algorithmic}[1]
+\Procedure{KNAPSACK}{$C, X$} \Comment{C is the list of coins, X is the value we make change for }
+	\State $n \gets len(C)$
+	\State $k \gets$ Initialize k to an array of size X+1 as we consider index 0
+	\State $k[0]=1$
+	\For{i = 1 to X}
+		\State $k[i] = 0$
+	\EndFor
+	
+	\For{$m=1$ to $X$}
+	
+		\For{$x \in C$}
+			\If{$x \leq m$}
+				\State $k[m] = MAX(k[m], k[m-x])$
+			\EndIf
+			
+		\EndFor
+		
+		
+	\EndFor
+	
+	\State Return $k[X]$
+\EndProcedure
+
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+
+\textbf{Time Complexity Analysis}
+The algorithm will take $O(nX)$ time where $n$ is the number of coins and $X$ is the value we want to make change for. We can see that the outer for loop on line 7 takes $O(X)$ while the inner loop takes $O(n)$ time so combined we have $O(nX)$ time complexity.
+
+
+\item Consider the following variation of the above problem.
+Given  coins of denominations $x_1, \cdots,  x_n$, we wish to make change for a certain value $X$.
+But for any denomination, we can use at most one coin (absolutely no repetitions). 
+(We are not worried about finding the minimum set of coins which adds up to  $X$; we just want to make change; and also note that sometimes we may not be able to make an exact change). Design a dynamic programming  algorithm running in $O(nX)$ time, that can decide whether the change for the amount $X$ can be made or not? 
+
+%Question 3 Answer
+
+\textbf{Solution}
+
+\textbf{Structure of an Optimal Solution}
+
+Let us define the quantity $k[n][m] =$ 1 if we can make change for the value $m$ and 0 otherwise. Then the structure of an optimal solution can be given as $k[r][c] = MAX(k[r-1][c], k[r][c-x_i])$ where $1 \leq i \leq n$ and $x_i \leq m $. We will initially set $k[r][0] = 1$ because we can always make change for a value of 0 as no coins are needed.
+
+\textbf{Recursive Definition}\\
+%NEED TO DO%
+If $ X == 0$ return True
+
+Else
+$ X = X - x_i$
+ 
+\begin{algorithm}
+\caption{Can we make change, can only use each coin once}
+\begin{algorithmic}[1]
+\Procedure{KNAPSACK}{$C, X$} \Comment{C is the list of coins, X is the value we make change for }
+	\State $n \gets len(C)$
+	\State $k \gets$ Initialize k to 2d array of size [n][X]
+	\State $k \gets$ Set each row's first column to 1
+	\For{i = 1 to n} \Comment {Set all other cells of the table $k$ to 0}
+		\State $k[i] = 0$
+	\EndFor
+	
+	\For{$r=1$ to $n$}
+		\For{$c = 1$ to $X$}
+			\For{$x \in C$}
+				\If{$x \leq m$}
+					\State $k[r][c] = MAX(k[r][c], k[r-1][c], k[r][c-x])$
+				\EndIf
+			
+			\EndFor
+			
+		\EndFor
+	
+
+		
+		
+	\EndFor
+	
+	\State Return $k[n][X]$
+\EndProcedure
+
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+
+\textbf{Time Complexity Analysis}
+The algorithm will take $O(n^2X)$ time where $n$ is the number of coins and $X$ is the value we want to make change for. We can see that the outer for loop on line 7 takes $O(n)$ while the inner loop takes $O(X)$ and finally the most inner loop takes $O(n)$ time so combined we have $O(n^2X)$ time complexity.
+
+
+\item Assume that you have a chocolate bar of length $n$ inches. You have a satisfaction chart, that indicates that if you eat a piece of length $i$ inches, for $1\le i\le n$, then you get a satisfaction of $s_i$. We can assume that all the quantities involved ($n, i,s_1,s_2,\dots,s_n,...$) are  positive integers. You want to decide, using dynamic programming, what is the best way to make pieces of your chocolate bar so that you get a maximum satisfaction when you consume the whole bar. What is the time complexity of your dynamic programming algorithm?\\
+For an example, suppose that the bar is $5$-inches long, and if your satisfaction chart says:\\ \\
+\begin{tabular}{l|c|c|c|c|c}\hline
+Length of Piece in inches ($i$) & 1& 2& 3&4&5\\ \hline
+Satisfaction$(s_i)$  & 2&7&9&6&12\\ \hline
+\end{tabular}  
+
+\noindent Then  various ways to partition the $5$-inch bar with its satisfaction values are as follows:\\
+$5=2+3$, with satisfaction $7+9=16$.\\
+$5=1+1+3$, with satisfaction $2+2+9=13$.\\
+$5=2+2+1$, with satisfaction $7+7+2=16$.\\
+No split, $5=5$, with satisfaction $12=12$.\\
+.....\\
+\noindent (Hint: Get an actual chocolate bar, solve the problem correctly, and pass me the bill!)
+
+\item Let $T=(V,E)$ be a binary tree on $n$ nodes. Note that $T$ may not be a balanced tree. You want to find a subset of vertices  $S\subset V$, such that for each edge $e=(uv)\in E$, atleast one of $u$ or $v$ is in $S$. Design an algorithm, running in polynomial time in $n$, that finds smallest such set $S$ (i.e. $|S|$ is minimized among all such subsets $S\subset V$).  
+
+\item State in your own words what are the complexity classes $\cal P$, $\cal{NP}$, $\cal{NP}$-Hard, and $\cal{NP}$-Complete. Give an example of a problem in each of these classes. Are all problems in $\cal P$ in $\cal{NP}$?
+
+\item Define what  is a Vertex Cover and what is an Independent Set in a simple undirected graph $G=(V,E)$. Define the decision versions of the problems of computing (a) a minimum vertex cover and (b) a largest Independent Set in $G$.
+Provide a polynomial time reduction of the Vertex Cover problem to the Independent Set problem. Show that the algorithm that transforms one problem to the other problem runs in polynomial time, and it is a valid reduction (i.e. solution of one problem can be obtained from the solution of other problem).
+
+\item Recall  the SATISFIABILITY problem. Given $n$-Boolean variables, $x_1, \dots, x_n$, a Boolean formula $\phi$ in the Conjunctive-Normal Form (CNF) is made of AND of $k>0$ clauses $\phi=C_1 \wedge C_2\wedge C_3\dots \wedge C_k$, where each clause $C_i$ is made of OR's of one or more literals. Each literal is either a Boolean variable or its complement. For example, $C_3=(x_1\vee \overline{x_4} \vee {x_7})$ is a clause made of three literals.  The SATISFIABILITY problem is whether we can find a satisfying assignment for $\phi$, i.e. finding an assignment of Boolean values to $x_1,\dots,x_n$ that makes $\phi$ true.    
+
+Given an undirected graph $G=(V,E)$, we say that $G$ can be {\em 3-colored} if we can assign one of the colors from  \{Red, Blue, Green\} to each vertex  so that for any edge $e=(u,v)\in E$,  $u$ and $v$  should get different colors. The decision version of the 3-coloring problem is to know whether there is an assignment of colors to vertices so that $G$ is 3-colored.  
+
+Recall the definition of polynomial time reducibility and show that the 3-coloring problem is polynomial time reducible to the SATSIFIABILITY problem. \\ 
+Hint:  Note that for each vertex $v_i$, you need to assign it one of the colors from \{Red, Blue, Green\}. If $v_i$ is assigned Red (Blue or Green) color, then we can say it's corresponding Boolean variable is $R_i$ ($B_i$ or $G_i$, respectively).  Express the coloring constraints in terms of clauses. For example $v_i$ needs to get at least one of the colors, therefore we can say that the corresponding clause is $(R_i\cup B_i\cup G_i)$. Come up with expressions for no vertex receiving more than one color, no two neighboring vertices receiving the same color, etc.  
+\end{enumerate}
+
+\end{document}
